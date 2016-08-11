@@ -2,15 +2,16 @@
     (:require 
               [uncomplicate.neanderthal
                [core :refer :all]
-               [native :refer :all]]))
+               [native :refer :all]]
+              [uncomplicate.fluokitten.core :refer [fmap]]))
 
 (def activation-fn
   "defines the function implemented by a neuron"
-  (fn [x] (Math/tanh x)))
+  (fn ^double [^double x] (Math/tanh x)))
 
 (def dactivation-fn
   "derivative of activation function"
-  (fn [y] (- 1.0 (* y y))))
+  (fn ^double [^double y] (- 1.0 (* y y))))
 
 (def range2
   "returns range with interval 2"
@@ -26,13 +27,12 @@
 
 (defn layer-activation [inputs strengths]
    "forward propagate the input of a layer"
-   (mapv activation-fn
-               (mv strengths (dv inputs))))
+   (fmap activation-fn (mv strengths inputs)))
 
 (defn gen-strengths [to from]
   "generate random strengths for layer"
   (let [l (* to from)]
-    (dge to from( vec (repeatedly l #(rand (/ 1 l)))))))
+    (dge to from( vec (repeat l 0.01)))))
 
 (defn feed-forward [input network]
   "feeds input through the network to the output"
@@ -43,24 +43,21 @@
            (interleave activations-indexes new-activations)))) ; associate positions with replacement values
 (defn ff [input network]
   "Feed forward and return output neurons"
-  (last (feed-forward input network)))
+  (last (feed-forward (dv input) network)))
 
 (defn output-deltas [targets outputs]
   "measures the delta errors for the output layer (Desired value – actual value) and multiplying it by the gradient of the activation function"
-  (mapv * (dv(mapv dactivation-fn outputs))
-     (axpy (dv targets) (dv outputs))))
+  (fmap (fn ^double [^double x ^double y] (* x y)) (fmap dactivation-fn outputs)
+     (axpy -1 outputs targets)))
 
 (defn hlayer-deltas [deltas [neurons strengths]]
   "measures the delta errors for the hidden layer based on the output deltas"
-  (mapv * (mapv dactivation-fn neurons)
-     (mv strengths (dv deltas))))
+  (fmap (fn ^double [^double x ^double y] (* x y)) (fmap dactivation-fn neurons)
+     (mv strengths deltas)))
 
 (defn update-strengths [[deltas neurons strengths lrate]]
   "update the strengths based on the deltas and the learning rate"
-  (println "previous strenghts: " strengths)
-  
-  (axpy strengths(mm lrate (dge 3 1 (into [] neurons)) (dge 1 3 deltas))))
-
+  (axpy strengths (rank lrate deltas neurons)))
 
 (defn update-weights [network target learning-rate]
   "updates the weights based on targets and learning rate with back-prop"
@@ -85,19 +82,19 @@
 (defn train-data [network data learning-rate]
   "train network with a set of data in the form of [[input1 target1] [input2 target2]]"
   (if-let [[input target] (first data)]
+    (let [input-block (dv input) 
+          target-block (dv target)]
     (recur
-     (train-network network input target learning-rate)
+     (train-network network input-block target-block learning-rate)
      (rest data)
-     learning-rate)
+     learning-rate))
     network))
 
 (defn train-epochs [n network training-data learning-rate]
   "train repeatedly n times over the same tranining data in the form of [[input1 target1] [input2 target2]]  "
-  (println "iterations left: " n)
   (if (zero? n)
     network
     (recur (dec n)
-
            (train-data network training-data learning-rate)
            training-data
            learning-rate)))
@@ -109,12 +106,12 @@
   ([size-in size-hidden num-hidden size-out]
   "construct a N layer neural network"
   (vec (concat
-                 [(into [](repeat size-in 0))
+                 [(dv (repeat size-in 0))
                   (gen-strengths size-in size-hidden)
-                  (into [](repeat size-hidden 0))]
+                  (dv (repeat size-hidden 0))]
                  (->>
                   (cons (gen-strengths size-hidden size-hidden) [(dv size-hidden)])
                   (repeat (dec num-hidden))
                   (apply concat))
                  [(gen-strengths size-hidden size-out)
-                  (into [](repeat size-out 0))]))))
+                  (dv (repeat size-out 0))]))))
