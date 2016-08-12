@@ -29,10 +29,10 @@
    "forward propagate the input of a layer"
    (fmap activation-fn (mv strengths inputs)))
 
-(defn gen-strengths [to from]
+(defn gen-strengths [from to]
   "generate random strengths for layer"
-  (let [l (* to from)]
-    (dge to from( vec (repeat l 0.01)))))
+  (let [l (* from to )]
+    (dge  to from( vec (repeat l 0.01)))))
 
 (defn feed-forward [input network]
   "feeds input through the network to the output"
@@ -53,7 +53,7 @@
 (defn hlayer-deltas [deltas [neurons strengths]]
   "measures the delta errors for the hidden layer based on the output deltas"
   (fmap (fn ^double [^double x ^double y] (* x y)) (fmap dactivation-fn neurons)
-     (mv strengths deltas)))
+     (mv (trans strengths) deltas)))
 
 (defn update-strengths [[deltas neurons strengths lrate]]
   "update the strengths based on the deltas and the learning rate"
