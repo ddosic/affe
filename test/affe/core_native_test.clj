@@ -1,6 +1,6 @@
-(ns affe.core-test
+(ns affe.core-native-test
   (:require [midje.sweet :refer :all]
-            [affe.core :refer :all]
+            [affe.neanderthal.native :refer :all]
             [affe.gui :refer :all]))
 
 (facts

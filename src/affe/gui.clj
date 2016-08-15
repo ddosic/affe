@@ -71,7 +71,8 @@
                        toffset (double border)
                        sskip (double (/ (- width (* 2 border)) (max 1.0 (dec layer-inputs))))
                        tskip (double (/ (- width (* 2 border)) (max 1.0 (dec layer-outputs))))]
-                   (dorun (for [y (sort-by #(hash (* 0.23 %)) (range layer-outputs))] ;; random order of drawing
+                   
+                   (dorun (for [y (range layer-outputs)]
                      (let [link-count layer-inputs
                            y (int y)
                            tx (int (+ toffset (* tskip y)))]
@@ -79,7 +80,8 @@
    	                    (let [ sx (int (+ soffset (* sskip x)))
                                x (int x)]
                              (.setColor g ^Color (weight-colour (entry (nth (get-weights nn) i)  y x)))
-   	                        (.drawLine g sx sy tx ty))))))))
+   	                        (.drawLine g sx sy tx ty))))))
+                   ))
                (dotimes [i layers]
                  (let [len (sizes i) 
                        ty (int (+ border (* (- height (* 2 border)) (/ (- layers i) layers))))
