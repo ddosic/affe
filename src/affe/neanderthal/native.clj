@@ -30,22 +30,28 @@
            learning-rate)))
 
 (defn construct-network
-  ([num-in num-hidden num-out]
+  ([size-in size-hidden size-out]
   "construct a three layer neural network"
-  (construct-network num-in num-hidden 0 num-out))
+  (construct-network size-in size-hidden 1 size-out))
   ([size-in size-hidden num-hidden size-out]
   "construct a N layer neural network"
-  (vec (concat
-                 [(dv (repeat size-in 0))
-                  (gen-strengths size-in size-hidden)
-                  (dv (repeat size-hidden 0))]
-                 (->>
-                  (cons (gen-strengths size-hidden size-hidden) [(dv size-hidden)])
-                  (repeat (dec num-hidden))
-                  (apply concat))
-                 [(gen-strengths size-hidden size-out)
-                  (dv (repeat size-out 0))]))))
+    [(vec (concat
+                    [(dv size-in)]
+                    (->>
+                     [(dv size-hidden)]
+                     (repeat  num-hidden)
+                     (apply concat))
+                     [(dv size-out)]))
+     (vec (concat
+                    [(gen-strengths size-in size-hidden)]
+                    (->>
+                      [(gen-strengths size-hidden size-hidden)]
+                      (repeat (dec num-hidden))
+                      (apply concat))
+                    [(gen-strengths size-hidden size-out)]))
+     ]
+   ))
 
 (defn ff [input network]
   "Feed forward and return output neurons"
-  (last (feed-forward (dv input) network)))
+  (last (get-layers (feed-forward (dv input) network))))
