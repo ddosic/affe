@@ -1,6 +1,7 @@
-(defproject affe "0.1.0"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject affe "0.2.0-SNAPSHOT"
+  :description "Neural network implementation in Clojure using Neanderthal"
+  :url "https://github.com/ddosic/affe"
+  :author "Dejan Dosic"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
