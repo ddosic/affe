@@ -3,7 +3,12 @@
               [affe.protocols :refer :all]
               [affe.trainer :refer :all]
               [affe.cpu.engine :refer :all]
-              [affe.network :refer :all]))
+              [affe.opencl.engine :refer :all]
+              [uncomplicate.clojurecl.core  :refer [*context* *command-queue* with-default]]
+
+              [uncomplicate.neanderthal
+             [core :refer [transfer]]
+             [opencl :refer [with-default-engine]]]))
 
 (def ^{:dynamic true
        :doc "Dynamic var for binding the default network engine."}

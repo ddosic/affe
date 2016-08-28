@@ -1,6 +1,5 @@
 (ns affe.trainer
-  (:require [affe.protocols :refer :all]
-            [uncomplicate.neanderthal.native :refer [dge dv]]))
+  (:require [affe.protocols :refer :all]))
 
 (defn train-network [visitor network input target learning-rate]
   "train network with one set of target data"
@@ -18,10 +17,11 @@
            )
 
 (defn train-epochs [visitor network n training-data learning-rate]
+  (println "round " n)
     (if (zero? n)
         network
         (recur visitor
-               (train-data visitor network training-data learning-rate)
-               (dec n)
+                (train-data visitor network training-data learning-rate)
+                (dec n)
                training-data
                learning-rate)))
