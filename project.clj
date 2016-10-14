@@ -1,4 +1,4 @@
-(defproject affe "0.2.0-SNAPSHOT"
+(defproject affe "0.3.0-SNAPSHOT"
   :description "Neural network implementation in Clojure using Neanderthal"
   :url "https://github.com/ddosic/affe"
   :author "Dejan Dosic"
