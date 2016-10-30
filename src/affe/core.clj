@@ -1,3 +1,5 @@
+;;inspired by and reusing some code from Carin Meier K9 demonstration project
+
 (ns affe.core
     (:require 
               [affe.protocols :refer :all]
@@ -10,9 +12,6 @@
              [core :refer [transfer]]
              [opencl :refer [with-default-engine]]]))
 
-(def ^{:dynamic true
-       :doc "Dynamic var for binding the default network engine."}
-  *network-engine*)
 
 (defn generate-layers [engine size-in size-hidden num-hidden size-out]
       (vec (concat

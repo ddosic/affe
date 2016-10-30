@@ -1,3 +1,5 @@
+;;inspired by and reusing some code from Mike Anderson Nurokit demonstration project
+
 (ns affe.gui
   (:require [affe.core :refer :all])
   (:require [uncomplicate.neanderthal.core :refer :all])
@@ -5,7 +7,13 @@
   (:import [javax.swing JComponent JLabel JPanel])
   (:import [java.awt Graphics2D Color GridLayout])
   (:import [java.awt.event ActionEvent ActionListener])
-  (:import [mikera.gui Frames]))
+  (:import [java.awt Color Graphics Image])
+  (:import [mikera.gui Frames JIcon]))
+
+
+(declare component)
+(declare grid)
+
 
 (defmacro clamp-colour-value [val]
   `(let [v# (float ~val)]
@@ -14,9 +22,11 @@
 (defn weight-colour 
   ([^double weight]
     (Color. 
-      (clamp-colour-value (Math/tanh (- weight)))
-      (clamp-colour-value (Math/tanh weight))
-      0.0)))
+      (if (< weight 0) 1.0 0.0 )
+      (if (> weight 0) 1.0 0.0 )
+      0.0
+      (clamp-colour-value (Math/abs weight))
+          )))
 
 (defn activation-colour 
   ([^double x]
@@ -25,13 +35,58 @@
       (clamp-colour-value (Math/abs x)) 
       (clamp-colour-value (- x)))))
 
+(defn grid [things]
+  (let [n (count things)
+        size (int (Math/ceil (Math/sqrt n)))
+        grid-layout (GridLayout. 0 size)
+        grid (JPanel.)]
+    (.setLayout grid grid-layout)
+    (doseq [x things]
+      (.add grid (component x)))
+    grid))
+
+(defn label 
+  "Creates a JLabel with the given content"
+  (^JLabel [s]
+    (let [^String s (str s)
+          label (JLabel. s JLabel/CENTER)]
+      (.setToolTipText label s)
+      label)))
+
+(defn component 
+  "Creates a component as appropriate to visualise an object x" 
+  (^JComponent [x]
+    (cond 
+      (instance? JComponent x) x
+      (instance? BufferedImage x) (JIcon. ^BufferedImage x)
+      (sequential? x) (grid (seq x))
+      :else (label x))))
+
 (defn show 
   "Shows a component in a new frame"
   ([com 
     & {:keys [^String title]
        :as options
-       :or {title nil}}]
-    (Frames/display com (str title))))
+       :or {title nil}}]  
+    (let [com (component com)]
+    
+    (Frames/display com (str title)))))
+
+ 
+(defn blank-bitmap [width height]
+  (BufferedImage. width height BufferedImage/TYPE_3BYTE_BGR))
+ 
+(defn fill [image color]
+  (doto (.getGraphics image)
+    (.setColor color)
+    (.fillRect 0 0 (.getWidth image) (.getHeight image))))
+ 
+(defn set-pixel [image x y color]
+  (.setRGB image x y (.getRGB color)))
+ 
+(defn get-pixel [image x y]
+  (Color. (.getRGB image x y)))
+ 
 
 (defn default-dimensions
   "Returns the default dimensions for a new frame"
@@ -44,7 +99,7 @@
           :or {border 20
                repaint-speed 50
                line-width 1
-               activation-size 5}}]
+               activation-size 2}}]
        (let [graph (proxy [javax.swing.JComponent java.awt.event.ActionListener] []
            (actionPerformed [^ActionEvent e]
              (.repaint ^JComponent this))
@@ -58,7 +113,7 @@
                    max-size (reduce max sizes)
                    step (/ (double width) max-size)
                    as (double activation-size)]
-               (.setColor g (Color/BLACK))
+               (.setColor g (Color/WHITE))
                (.fillRect g 0 0 width height)
                (.setStroke g (java.awt.BasicStroke. (float line-width))) 
                (dotimes [i (dec layers)]
@@ -91,9 +146,9 @@
                      (let [activation 0.5
                            tx (int (+ toffset (* tskip y)))]
                        (.setColor g ^Color (activation-colour activation))
-                       (.fillRect g (- tx as) (- ty as) (* 2 as) (* 2 as))
-                       (.setColor g Color/GRAY)
-                       (.drawRect g (- tx as) (- ty as) (* 2 as) (* 2 as)))))))))
+                       (.fillOval g (- tx as) (- ty as) (* 2 as) (* 2 as))
+                       (.setColor g Color/BLACK)
+                       (.drawOval g (- tx as) (- ty as) (* 2 as) (* 2 as)))))))))
              timer (javax.swing.Timer. (int repaint-speed) graph)]
          (.start timer)
          (.setPreferredSize graph (default-dimensions))

@@ -16,7 +16,7 @@
     (dv size))
   (gen-strengths [_ from to]
      (let [l (* from to )]
-                  (dge  to from( vec (repeat l 0.01)))))
+                  (dge to from (vec (repeatedly l (fn [] (rand (/ 1 100))))))))
   (wrap-input [_ input] (dv input))
   )
 (defn native-affe-engine
