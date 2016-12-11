@@ -12,16 +12,6 @@
              [core :refer [transfer]]
              [opencl :refer [with-default-engine]]]))
 
-
-(defn generate-layers [engine size-in size-hidden num-hidden size-out]
-      (vec (concat
-                    [(.gen-layer engine size-in)]
-                    (->>
-                     [(.gen-layer engine size-hidden)]
-                     (repeat  num-hidden)
-                     (apply concat))
-                     [(.gen-layer engine size-out)])))
-
 (defn generate-weights [engine size-in size-hidden num-hidden size-out]
            (vec (concat
                     [(.gen-strengths engine size-in size-hidden)]
@@ -37,6 +27,5 @@
   (construct-network affe-engine size-in size-hidden 1 size-out))
   ([affe-engine size-in size-hidden num-hidden size-out]
   "construct a N layer neural network"
-  [(generate-layers affe-engine size-in size-hidden num-hidden size-out)
-   (generate-weights affe-engine size-in size-hidden num-hidden size-out)]))
+  (generate-weights affe-engine size-in size-hidden num-hidden size-out)))
 

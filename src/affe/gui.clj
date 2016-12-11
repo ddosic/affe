@@ -94,7 +94,7 @@
     (java.awt.Dimension. 400 300)))
 
 (defn network-graph
-     ([visitor nn
+     ([visitor activations nn
        & {:keys [border repaint-speed activation-size line-width max-nodes-displayed] 
           :or {border 20
                repaint-speed 50
@@ -108,8 +108,8 @@
                    this ^JComponent this
                    width (double (.getWidth this))
                    height (double (.getHeight this))
-                   layers (count (.get-layers visitor nn))
-                   sizes (vec (map #(ecount %) (.get-layers visitor nn)))
+                   layers (count activations)
+                   sizes (vec (map #(ecount %) activations))
                    max-size (reduce max sizes)
                    step (/ (double width) max-size)
                    as (double activation-size)]
@@ -117,8 +117,7 @@
                (.fillRect g 0 0 width height)
                (.setStroke g (java.awt.BasicStroke. (float line-width))) 
                (dotimes [i (dec layers)]
-                 (let [layer (nth (.get-layers visitor nn) i)
-                       layer-inputs (long (sizes i))
+                 (let [layer-inputs (long (sizes i))
                        layer-outputs (long (sizes (inc i))) 
                        sy (int (+ border (* (- height (* 2 border)) (/ (- layers 0.0 i) layers))))
                        ty (int (+ border (* (- height (* 2 border)) (/ (- layers 1.0 i) layers))))
@@ -134,7 +133,7 @@
                        (dotimes [x link-count] 
    	                    (let [ sx (int (+ soffset (* sskip x)))
                                x (int x)]
-                             (.setColor g ^Color (weight-colour (entry (nth (.get-weights visitor nn) i)  y x)))
+                             (.setColor g ^Color (weight-colour (entry (nth nn i)  y x)))
    	                        (.drawLine g sx sy tx ty))))))
                    ))
                (dotimes [i layers]

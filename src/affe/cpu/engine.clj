@@ -12,8 +12,6 @@
     (fmap (fn ^double [^double elem] (- 1.0 (* elem elem))) x))
   (mul [_ x y]
     (fmap (fn ^double [^double ix ^double iy] (* ix iy)) x y))
-  (gen-layer [_ size]
-    (dv size))
   (gen-strengths [_ from to]
      (let [l (* from to )]
                   (dge to from (vec (repeatedly l (fn [] (rand (/ 1 100))))))))

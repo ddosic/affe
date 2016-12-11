@@ -39,8 +39,6 @@
                    (wrap-int (.stride y)))
           (enq-nd! cqueue mul-kernel (work-size-1d (dim x))))
         x)
-  (gen-layer [_ size]
-    (clv size))
   (gen-strengths [_ from to]
     (let [l (* from to )]
       (clge  to from( vec (repeat l 0.01)))))

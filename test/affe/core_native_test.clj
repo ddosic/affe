@@ -17,5 +17,5 @@
  (def visitor (->NeuralNetworkVisitor naf))
  (def testNet (construct-network naf 788 3 3))
  (def trained (train visitor testNet 100 [[(vec (range 788))[1 -1 1]]] 0.001))
- (show (network-graph visitor trained))
+ (show (network-graph visitor (.ff visitor trained (vec (range 788))) trained))
  )

@@ -4,7 +4,7 @@
    
    (defn train-network [visitor network input target learning-rate]
      "train network with one set of target data"
-     (.update-weights visitor (.feed-forward visitor network input ) target learning-rate))
+     (.update-weights visitor (.feed-forward visitor network input ) network target learning-rate))
    
    (defn train-data [visitor network data learning-rate]
        (if-let [[input target] (first data)]
