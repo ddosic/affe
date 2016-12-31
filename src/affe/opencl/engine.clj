@@ -9,7 +9,7 @@
             [uncomplicate.neanderthal
              [protocols :refer :all]
              [block :refer :all]
-             [core :refer [dim mrows ncols transfer transfer!]]
+             [core :refer [dim ecount mrows ncols transfer transfer!]]
              [native :refer [dv dge]]]
             [uncomplicate.neanderthal.opencl :refer [clv clge with-default-engine]]
             [uncomplicate.neanderthal.opencl.clblock :refer :all]
@@ -24,30 +24,31 @@
         (with-release [tanh-kernel (kernel prog "act_tanh")]
           (set-args! tanh-kernel 0 (buffer x)(wrap-int (.offset x))
                    (wrap-int (.stride x)))
-          (enq-nd! cqueue tanh-kernel (work-size-1d (dim x))))
+          (enq-nd! cqueue tanh-kernel (work-size-2d (mrows x) (ncols x))))
         x)
   (deactivate-tanh [_ x]
         (with-release [detanh-kernel (kernel prog "deact_tanh")]
           (set-args! detanh-kernel 0 (buffer x)(wrap-int (.offset x))
                    (wrap-int (.stride x)))
-          (enq-nd! cqueue detanh-kernel (work-size-1d (dim x))))
+          (enq-nd! cqueue detanh-kernel (work-size-2d (mrows x) (ncols x))))
         x)
   (mul [_ x y]
         (with-release [mul-kernel (kernel prog "mul")]
           (set-args! mul-kernel 0 (buffer x)(wrap-int (.offset x))
                    (wrap-int (.stride x))(buffer y)(wrap-int (.offset y))
                    (wrap-int (.stride y)))
-          (enq-nd! cqueue mul-kernel (work-size-1d (dim x))))
+          (enq-nd! cqueue mul-kernel (work-size-2d (mrows x) (ncols x))))
         x)
   (gen-strengths [_ from to]
     (let [l (* from to )]
       (clge  to from( vec (repeat l 0.01)))))
-  (wrap-input [_ input] (clv input))
+  (wrap-input [_ input] (clge (count input) 1 input))
+  (wrap-batch [_ input] (clge (count (first input))(count input) (flatten input)))
   )
 
   (defn cl-affe-engine
     ([ctx cqueue]
      (let-release [prog (build-program!
                          (program-with-source ctx [(slurp (io/resource "affe/opencl/kernel/support_functions.cl"))])
-                         "-DREAL=float" nil)]
+                         "-DREAL=double" nil)]
        (->AffeCLEngine ctx cqueue prog))))

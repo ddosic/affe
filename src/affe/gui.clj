@@ -94,7 +94,7 @@
     (java.awt.Dimension. 400 300)))
 
 (defn network-graph
-     ([visitor activations nn
+     ([visitor sizes nn
        & {:keys [border repaint-speed activation-size line-width max-nodes-displayed] 
           :or {border 20
                repaint-speed 50
@@ -108,8 +108,7 @@
                    this ^JComponent this
                    width (double (.getWidth this))
                    height (double (.getHeight this))
-                   layers (count activations)
-                   sizes (vec (map #(ecount %) activations))
+                   layers (count sizes)
                    max-size (reduce max sizes)
                    step (/ (double width) max-size)
                    as (double activation-size)]

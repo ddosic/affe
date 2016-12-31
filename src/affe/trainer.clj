@@ -13,7 +13,6 @@
                 (rest data)
                 learning-rate)
                network))
-              
    
    (defn train-epochs [visitor network n training-data learning-rate]
      (println "round " n)
@@ -26,9 +25,17 @@
                   learning-rate)))
    
    (defn train [visitor network n training-data learning-rate]
-     (let-release [wrap-training-data (map(fn [[input target]] [(.prepare-input visitor input) 
-                                                                (.prepare-input visitor target)] ) 
+     (let-release [wrap-training-data (map(fn [[input target]] [(.prepare-batch visitor input) 
+                                                                (.prepare-batch visitor target)] ) 
                                           training-data)]
        (train-epochs visitor network n wrap-training-data learning-rate)
        )
      )
+   
+   (defn setup-batch [inp-coll res-coll batch batch-size]
+           (if (empty? inp-coll)
+               batch
+           (recur (drop batch-size inp-coll)(drop batch-size res-coll)(conj batch [(vec (take batch-size inp-coll)) (vec (take batch-size res-coll))]) batch-size))
+         )
+   
+   

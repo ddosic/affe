@@ -1,17 +1,17 @@
-(ns affe.mnist
+(ns affe.mnistcl
   (:require [clojure.java.io :as io]
             [midje.sweet :refer :all]
             [affe.core :refer :all]
             [affe.network :refer :all]
+            [affe.opencl.engine :refer :all]
             [affe.cpu.engine :refer :all]
             [affe.trainer :refer :all]
             [affe.gui :refer :all]
             [uncomplicate.clojurecl.core  :refer [*context* *command-queue* with-default]]
             [uncomplicate.neanderthal
-             [opencl :refer [with-default-engine]]]
-            [uncomplicate.fluokitten.core :refer [fmap]]
-            [uncomplicate.neanderthal.core :refer :all]
-            [uncomplicate.neanderthal.native :refer [sge sv]])
+             [core :refer :all]
+             [opencl :refer [with-engine]]]
+            [uncomplicate.neanderthal.opencl.clblast :refer [clblast-double]])
   (:import [java.io DataInputStream File FileInputStream BufferedInputStream]))
 
 (set! *unchecked-math* true) 
@@ -116,16 +116,22 @@
 
 (facts
  "Hopefully no crash here."
-  
- (def naf (native-affe-engine))
- (def visitor (->NeuralNetworkVisitor naf))
- (def testNet (construct-network naf 784 160 10))
- (def data  (take 60000 @data-store))
- (def labels (take 60000 @label-store))
- (def trained (train visitor testNet 40 (setup-batch data (vec (map (fn [response] (vectorize-digit response)) labels )) [] 100)  0.08))
- ;;(def trained (train visitor testNet 20 [[data (vec (map (fn [response] (vectorize-digit response)) labels ))]] 0.3))
- (show (network-graph visitor [784 160 10] trained))
- (get-precision 1000 visitor trained @label-store @data-store)
- (get-precision 1000 visitor trained @test-label-store @test-data-store)
+  (with-default
+    (with-engine clblast-double *command-queue*
+       (def engine (cl-affe-engine *context* *command-queue*))
+       (def visitor (->NeuralNetworkVisitor engine))
+       (def testNet (construct-network engine 784 160 10))
+       (def data (doall (take 1000 @test-data-store)))
+       (def labels (doall(take 1000 @test-label-store)))
+       (def trained (train visitor testNet 10 (setup-batch data (vec (map (fn [response] (vectorize-digit response)) labels )) [] 200)  0.3))
+ 
+       ;;(def trained (train visitor testNet 100 [[data (vec (map (fn [response] (vectorize-digit response)) labels ))]] 0.15))
+       (def host-trained (vec (map transfer  trained)))
+      ))
 
-)
+  (def cpu-engine (native-affe-engine))
+  (def cpu-network-visitor (->NeuralNetworkVisitor cpu-engine))
+  (show (network-graph cpu-network-visitor [784 160 10] host-trained))
+  (get-precision 1000 cpu-network-visitor host-trained @label-store @data-store)
+  (get-precision 1000 cpu-network-visitor host-trained @test-label-store @test-data-store)
+ )

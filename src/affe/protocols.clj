@@ -5,13 +5,15 @@
   (deactivate-tanh [this x])
   (mul [this x y])
   (gen-strengths [this from to])
-  (wrap-input [this input]))
+  (wrap-input [this input])
+  (wrap-batch [this batch]))
 
 (defprotocol Network
   (ff [this network input]))
 
 (defprotocol NetworkInternals
   (prepare-input [this x])
+  (prepare-batch [this x])
   (activation-fn [this x])
   (dactivation-fn [this x])
   (feed-forward [this network input])

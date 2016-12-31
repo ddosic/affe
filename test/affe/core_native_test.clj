@@ -10,12 +10,11 @@
              [core :refer [transfer]]
              [opencl :refer [with-default-engine]]]
             ))
-
 (facts
  "Hopefully no crash here."
  (def naf (native-affe-engine))
  (def visitor (->NeuralNetworkVisitor naf))
- (def testNet (construct-network naf 788 3 3))
- (def trained (train visitor testNet 100 [[(vec (range 788))[1 -1 1]]] 0.001))
- (show (network-graph visitor (.ff visitor trained (vec (range 788))) trained))
+ (def testNet (construct-network naf 4 4 4))
+ (def trained (train visitor testNet 10 [[[(vec (range 4))][[1 -1 1 0]]][[(vec (range 4))][[1 -1 1 0]]]] 0.1))
+ (show (network-graph visitor [4 4 4] trained))
  )

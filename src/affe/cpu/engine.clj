@@ -15,7 +15,8 @@
   (gen-strengths [_ from to]
      (let [l (* from to )]
                   (dge to from (vec (repeatedly l (fn [] (rand (/ 1 100))))))))
-  (wrap-input [_ input] (dv input))
+  (wrap-input [_ input] (dge (count input) 1 input))
+  (wrap-batch [_ input] (dge (count (first input))(count input) (flatten input)))
   )
 (defn native-affe-engine
     ([]
