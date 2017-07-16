@@ -10,8 +10,7 @@
             [uncomplicate.clojurecl.core  :refer [*context* *command-queue* with-default]]
             [uncomplicate.neanderthal
              [core :refer :all]
-             [opencl :refer [with-engine]]]
-            [uncomplicate.neanderthal.opencl.clblast :refer [clblast-double]])
+             [opencl :refer [with-engine opencl-double]]])
   (:import [java.io DataInputStream File FileInputStream BufferedInputStream]))
 
 (set! *unchecked-math* true) 
@@ -117,7 +116,7 @@
 (facts
  "Hopefully no crash here."
   (with-default
-    (with-engine clblast-double *command-queue*
+    (with-engine opencl-double *command-queue*
        (def engine (cl-affe-engine *context* *command-queue*))
        (def visitor (->NeuralNetworkVisitor engine))
        (def testNet (construct-network engine 784 160 10))

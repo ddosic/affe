@@ -7,12 +7,10 @@
              [toolbox :refer [count-work-groups enq-reduce
                               enq-read-int enq-read-double]]]
             [uncomplicate.neanderthal
-             [protocols :refer :all]
              [block :refer :all]
-             [core :refer [dim ecount mrows ncols transfer transfer!]]
+             [core :refer [dim mrows ncols transfer transfer!]]
              [native :refer [dv dge]]]
             [uncomplicate.neanderthal.opencl :refer [clv clge with-default-engine]]
-            [uncomplicate.neanderthal.opencl.clblock :refer :all]
             [affe.protocols :refer :all])
 )
 (deftype AffeCLEngine [ctx cqueue prog]

@@ -1,7 +1,7 @@
 (ns affe.network
    (:require [affe.protocols :refer :all]
              [uncomplicate.neanderthal.core :refer :all]
-             [uncomplicate.commons.core :refer [let-release release-seq]]))
+             [uncomplicate.commons.core :refer [let-release]]))
 
 (deftype NeuralNetworkVisitor [^affe.protocols.AffeSupportEngine engine]
   Network
@@ -30,7 +30,7 @@
             diff  (axpy -1 outputs targets)]
      (.mul engine dacts diff)))
   (update-strengths [_ deltas neurons strengths lrate]
-    (axpy strengths (rank lrate deltas neurons)))
+    (axpy strengths (rk lrate deltas neurons)))
   (update-weights [this activations network target learning-rate](
        let-release [strenghts (reverse network) ;get weight vectors between input, hidden levels and output
         layers (reverse activations) ;get layers values
@@ -50,6 +50,5 @@
                            (let [neuronsT  (trans neurons)
                                  prod (mm (/ lr (.ncols neurons)) deltas neuronsT)]
                            (axpy strs prod))) h-deltas-layer-weights)] ;produce the new strenghts
-       (release-seq strenghts)
        (reverse n-strenghts)))
   )

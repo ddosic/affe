@@ -6,12 +6,9 @@
             [affe.cpu.engine :refer :all]
             [affe.trainer :refer :all]
             [affe.gui :refer :all]
-            [uncomplicate.clojurecl.core  :refer [*context* *command-queue* with-default]]
-            [uncomplicate.neanderthal
-             [opencl :refer [with-default-engine]]]
             [uncomplicate.fluokitten.core :refer [fmap]]
             [uncomplicate.neanderthal.core :refer :all]
-            [uncomplicate.neanderthal.native :refer [sge sv]])
+            [uncomplicate.neanderthal.native :refer [fge fv]])
   (:import [java.io DataInputStream File FileInputStream BufferedInputStream]))
 
 (set! *unchecked-math* true) 

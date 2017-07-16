@@ -9,11 +9,10 @@
             [uncomplicate.clojurecl.core  :refer [*context* *command-queue* with-default finish!]]
             [uncomplicate.neanderthal
              [core :refer [transfer]]
-             [opencl :refer [with-engine]]]
-            [uncomplicate.neanderthal.opencl.clblast :refer [clblast-double]]
+             [opencl :refer [with-engine opencl-double]]]
             ))
 (with-default
-  (with-engine clblast-double *command-queue*
+  (with-engine opencl-double *command-queue*
     (facts
        "Hopefully no crash here."
        (def engine (cl-affe-engine *context* *command-queue*))
